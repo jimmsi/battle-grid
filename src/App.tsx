@@ -3,6 +3,7 @@ import Board from './components/Board';
 import DraggableUnit from './components/DraggableUnit';
 import { Unit as UnitType } from './types';
 import { calculatePossibleMoves } from './utils';
+import { calculatePossibleAttackTargets } from './utils';
 import './App.css';
 
 const initialUnits: UnitType[] = [
@@ -16,6 +17,7 @@ const App: React.FC = () => {
   const [units, setUnits] = useState<UnitType[]>(initialUnits);
   const [board, setBoard] = useState<(UnitType | null)[]>(createEmptyBoard());
   const [highlightedSquares, setHighlightedSquares] = useState<number[]>([]);
+  const [highlightedAttackTargets, setHighlightedAttackTargets] = useState<number[]>([]);
   const [draggingUnit, setDraggingUnit] = useState<UnitType | null>(null);
 
   const handleNewUnitDragStart = (event: React.DragEvent<HTMLDivElement>, unit: UnitType) => {
@@ -66,9 +68,14 @@ const App: React.FC = () => {
   const handleMouseOver = (unit: UnitType) => {
     if (unit.position !== null && !draggingUnit) {
       const possibleMoves = calculatePossibleMoves(unit.position, unit.movementRange, board);
+      const possibleAttackTargets = calculatePossibleAttackTargets(unit.position, board);
       setHighlightedSquares(possibleMoves);
+      // Highlight attack targets in a different way, e.g., setting a different state or adding a class
+      // For simplicity, let's assume we have another state for attack targets
+      setHighlightedAttackTargets(possibleAttackTargets);
     }
   };
+  
 
   const handleMouseOut = () => {
     if (!draggingUnit) {
@@ -93,6 +100,7 @@ const App: React.FC = () => {
           onMouseOutUnit={handleMouseOut}
           onSquareDragStart={handleSquareDragStart}
           highlightedSquares={highlightedSquares}
+          highlightedAttackTargets={highlightedAttackTargets}
         />
       </div>
     </div>

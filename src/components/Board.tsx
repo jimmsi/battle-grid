@@ -11,6 +11,7 @@ interface BoardProps {
   onMouseOutUnit: () => void;
   onSquareDragStart: (event: React.DragEvent<HTMLDivElement>, index: number) => void;
   highlightedSquares: number[];
+  highlightedAttackTargets: number[];
 }
 
 const Board: React.FC<BoardProps> = ({
@@ -21,7 +22,8 @@ const Board: React.FC<BoardProps> = ({
   onMouseOverUnit,
   onMouseOutUnit,
   onSquareDragStart,
-  highlightedSquares
+  highlightedSquares,
+  highlightedAttackTargets
 }) => {
   const renderSquare = (index: number) => {
     return (
@@ -32,6 +34,7 @@ const Board: React.FC<BoardProps> = ({
         onDrop={(event) => onSquareDrop(event, index)}
         onDragOver={onSquareDragOver}
         highlighted={highlightedSquares.includes(index)}
+        isAttackTarget={highlightedAttackTargets.includes(index)}
         onMouseOver={() => board[index] && onMouseOverUnit(board[index]!)}
         onMouseOut={onMouseOutUnit}
         onDragStart={(event) => onSquareDragStart(event, index)}

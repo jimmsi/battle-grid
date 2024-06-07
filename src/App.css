@@ -45,3 +45,8 @@
 .square.highlighted {
   background-color: lightblue;
 }
+
+.square.attack-target {
+  background-color: rgb(255, 129, 129);
+}
+

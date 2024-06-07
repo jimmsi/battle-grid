@@ -1,14 +1,13 @@
-import { Unit } from './types'; 
+import { Unit } from './types';
 
 export const calculatePossibleMoves = (position: number, range: number, board: (Unit | null)[]): number[] => {
   const possibleMoves: Set<number> = new Set();
   const boardSize = 12;
 
+  // Endast horisontella och vertikala rörelser
   const directions = [
     -1, 1, // left, right
-    -boardSize, boardSize, // up, down
-    -boardSize - 1, -boardSize + 1, // up-left, up-right
-    boardSize - 1, boardSize + 1 // down-left, down-right
+    -boardSize, boardSize // up, down
   ];
 
   const queue: [number, number][] = [[position, 0]];
@@ -22,21 +21,22 @@ export const calculatePossibleMoves = (position: number, range: number, board: (
 
         // Beräkna kolumnindex för nuvarande och nya rutan
         const currentCol = currentPosition % boardSize;
-        const newCol = newPosition % boardSize;
-
-        // Kontrollera om rörelsen korsar kolumngränsen
-        if (Math.abs(currentCol - newCol) > 1 && Math.abs(currentCol - newCol) !== (boardSize - 1)) {
-          continue; // Om skillnaden i kolumnindex är större än 1, hoppa över denna iteration
-        }
 
         if (
           newPosition >= 0 &&
           newPosition < boardSize * boardSize &&
           !possibleMoves.has(newPosition) &&
-          !board[newPosition] // Kontrollera om rutan redan är upptagen
+          !board[newPosition]
         ) {
-          queue.push([newPosition, currentRange + 1]);
-          possibleMoves.add(newPosition);
+          if (
+            (direction === -1 && currentCol > 0) || // left, ensuring not moving left from first column
+            (direction === 1 && currentCol < boardSize - 1) || // right, ensuring not moving right from last column
+            (direction === -boardSize) || // up
+            (direction === boardSize) // down
+          ) {
+            queue.push([newPosition, currentRange + 1]);
+            possibleMoves.add(newPosition);
+          }
         }
       }
     }
@@ -44,3 +44,39 @@ export const calculatePossibleMoves = (position: number, range: number, board: (
 
   return Array.from(possibleMoves);
 };
+
+export const calculatePossibleAttackTargets = (position: number, board: (Unit | null)[]): number[] => {
+  const possibleTargets: number[] = [];
+  const boardSize = 12;
+
+  // Endast horisontella och vertikala grannar
+  const directions = [
+    -1, 1, // left, right
+    -boardSize, boardSize // up, down
+  ];
+
+  for (const direction of directions) {
+    const newPosition = position + direction; // Den nya rutan som testas mot villkoren
+
+    // Beräkna kolumnindex för nuvarande och nya rutan
+    const currentCol = position % boardSize;
+
+    // Kontrollera om rörelsen korsar kolumngränsen
+    if (
+      newPosition >= 0 &&
+      newPosition < boardSize * boardSize &&
+      (direction === -1 && currentCol > 0 || // left, ensuring not moving left from first column
+      direction === 1 && currentCol < boardSize - 1 || // right, ensuring not moving right from last column
+      direction === -boardSize || // up
+      direction === boardSize) // down
+    ) {
+      const targetUnit = board[newPosition];
+      if (targetUnit && targetUnit.player !== board[position]?.player) { // Kontrollera om det är en fiendeenhet
+        possibleTargets.push(newPosition);
+      }
+    }
+  }
+
+  return possibleTargets;
+};
+

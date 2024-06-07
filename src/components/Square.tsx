@@ -10,6 +10,7 @@ interface SquareProps {
   onMouseOut: () => void;
   onDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
   highlighted: boolean;
+  isAttackTarget: boolean;
 }
 
 const Square: React.FC<SquareProps> = ({
@@ -20,11 +21,12 @@ const Square: React.FC<SquareProps> = ({
   onMouseOver,
   onMouseOut,
   onDragStart,
-  highlighted
+  highlighted,
+  isAttackTarget
 }) => {
   return (
     <div
-      className={`square ${highlighted ? 'highlighted' : ''}`}
+      className={`square ${highlighted ? 'highlighted' : ''} ${isAttackTarget ? 'attack-target' : ''}`}
       onClick={onClick}
       onDrop={onDrop}
       onDragOver={onDragOver}
