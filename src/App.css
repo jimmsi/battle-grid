@@ -1,0 +1,47 @@
+/* src/App.css */
+
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.units {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.unit {
+  margin: 0 10px;
+  padding: 10px;
+  background-color: lightgray;
+  border: 1px solid black;
+  cursor: grab;
+}
+
+.board-container {
+  display: flex;
+  justify-content: center;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(12, 50px);
+  grid-template-rows: repeat(12, 50px);
+  gap: 2px;
+}
+
+.square {
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.square.highlighted {
+  background-color: lightblue;
+}
