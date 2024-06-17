@@ -13,8 +13,7 @@ const DraggableUnit: React.FC<DraggableUnitProps> = ({ unit, onDragStart }) => {
       draggable
       onDragStart={(event) => onDragStart(event, unit)}
     >
-      {`Player ${unit.player} Unit`}
-    </div>
+      <img src={unit.imagePath} alt={unit.type} className="unit-image" />    </div>
   );
 };
 

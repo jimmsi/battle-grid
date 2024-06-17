@@ -35,7 +35,17 @@ const Square: React.FC<SquareProps> = ({
       draggable={!!value}
       onDragStart={value ? onDragStart : undefined}
     >
-      {value ? `P${value.player}` : ''}
+     {value && (
+        <>
+          <img src={value.imagePath} alt={value.type} className="unit-image" />
+          <div className="health-bar">
+            <div
+              className="health-bar-inner"
+              style={{ width: `${(value.hp / value.maxHP) * 100}%` }}
+            ></div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

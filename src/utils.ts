@@ -45,7 +45,7 @@ export const calculatePossibleMoves = (position: number, range: number, board: (
   return Array.from(possibleMoves);
 };
 
-export const calculatePossibleAttackTargets = (position: number, board: (Unit | null)[]): number[] => {
+export const calculatePossibleMeleeAttackTargets = (position: number, board: (Unit | null)[]): number[] => {
   const possibleTargets: number[] = [];
   const boardSize = 12;
 
@@ -79,4 +79,105 @@ export const calculatePossibleAttackTargets = (position: number, board: (Unit | 
 
   return possibleTargets;
 };
+
+export const calculatePossiblePenetratingDistanceAttackTargets = (position: number, attackRange: number, board: (Unit | null)[]): number[] => {
+  const possibleTargets: number[] = [];
+  const boardSize = 12;
+
+  const startX = position % boardSize;
+  const startY = Math.floor(position / boardSize);
+
+  for (let x = -attackRange; x <= attackRange; x++) {
+    for (let y = -attackRange; y <= attackRange; y++) {
+      const targetX = startX + x;
+      const targetY = startY + y;
+      const targetPosition = targetY * boardSize + targetX;
+
+      if (
+        targetX >= 0 && targetX < boardSize &&
+        targetY >= 0 && targetY < boardSize &&
+        targetPosition !== position // exclude the unit's own position
+      ) {
+        const distance = Math.sqrt(x * x + y * y); // Euclidean distance
+        if (distance <= attackRange) {
+          // Exkludera närmaste grannar (en ruta ifrån i alla riktningar)
+          if (!(Math.abs(x) <= 1 && Math.abs(y) <= 1)) {
+            const targetUnit = board[targetPosition];
+            if (targetUnit && targetUnit.player !== board[position]?.player) {
+              possibleTargets.push(targetPosition);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return possibleTargets;
+};
+
+export const calculatePossibleNonPenetratingDistanceAttackTargets = (position: number, attackRange: number, board: (Unit | null)[]): number[] => {
+  const possibleTargets: number[] = [];
+  const boardSize = 12;
+
+  const startX = position % boardSize;
+  const startY = Math.floor(position / boardSize);
+
+  for (let x = -attackRange; x <= attackRange; x++) {
+    for (let y = -attackRange; y <= attackRange; y++) {
+      const targetX = startX + x;
+      const targetY = startY + y;
+      const targetPosition = targetY * boardSize + targetX;
+
+      if (
+        targetX >= 0 && targetX < boardSize &&
+        targetY >= 0 && targetY < boardSize &&
+        targetPosition !== position // exclude the unit's own position
+      ) {
+        const distance = Math.sqrt(x * x + y * y); // Euclidean distance
+        if (distance <= attackRange) {
+          let isBlocked = false;
+          let dx = Math.abs(targetX - startX);
+          let dy = Math.abs(targetY - startY);
+          let sx = startX < targetX ? 1 : -1;
+          let sy = startY < targetY ? 1 : -1;
+          let err = dx - dy;
+
+          let checkX = startX;
+          let checkY = startY;
+
+          while (checkX !== targetX || checkY !== targetY) {
+            const e2 = err * 2;
+            if (e2 > -dy) {
+              err -= dy;
+              checkX += sx;
+            }
+            if (e2 < dx) {
+              err += dx;
+              checkY += sy;
+            }
+
+            if (checkX === targetX && checkY === targetY) break; // reached the target
+
+            const checkPosition = checkY * boardSize + checkX;
+            if (board[checkPosition]) {
+              isBlocked = true;
+              break;
+            }
+          }
+
+          if (!isBlocked) {
+            const targetUnit = board[targetPosition];
+            if (targetUnit && targetUnit.player !== board[position]?.player) {
+              possibleTargets.push(targetPosition);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return possibleTargets;
+};
+
+
 
