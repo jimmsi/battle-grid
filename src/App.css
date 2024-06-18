@@ -93,7 +93,7 @@
   background-size: cover; /* Ser till att bilden täcker hela rutan */
   background-repeat: no-repeat; /* Förhindrar upprepning av bilden */
   background-position: center; /* Placerar bilden centrerad i rutan */
-  border: 1px solid black;
+  border: 1px solid rgb(158, 157, 157);
   display: flex; /* Lägg till flex-egenskaper för att centrera innehåll */
   align-items: center; /* Centrerar innehåll vertikalt */
   justify-content: center; /* Centrerar innehåll horisontellt */
@@ -103,7 +103,7 @@
 
 
 .square.highlighted {
-  background-color: rgb(99, 124, 133);
+  background-color: rgb(105, 62, 223);
 }
 
 .square.attack-target {

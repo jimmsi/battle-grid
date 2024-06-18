@@ -6,22 +6,23 @@ import { calculatePossibleMoves } from './utils';
 import { calculatePossibleMeleeAttackTargets } from './utils';
 import { calculatePossiblePenetratingDistanceAttackTargets } from './utils';
 import { calculatePossibleNonPenetratingDistanceAttackTargets } from './utils';
+import { calculatePossiblePenetratingHorizontalVerticalDistanceAttackTargets } from './utils';
 import './App.css';
 
 const initialUnits: UnitType[] = [
-  { id: '1', player: 1, type: 'Soldier', maxHP: 50, hp: 50, movementRange: 2, attackRange: 4, attackValue: 20, position: null, isPenetratingAttack: false, imagePath: '/images/soldier.png', cost: 50, isPaid: false },
+  { id: '1', player: 1, type: 'Soldier', maxHP: 50, hp: 50, movementRange: 2, attackRange: 1, attackValue: 20, position: null, isPenetratingAttack: false, imagePath: '/images/soldier.png', cost: 50, isPaid: false },
   //  { id: '2', player: 1, type: 'Archer', maxHP: 80, hp: 80, movementRange: 3, attackRange: 4, attackValue: 10, position: null, isPenetratingAttack: false },
   //  { id: '3', player: 1, type: 'Knight', maxHP: 200, hp: 200, movementRange: 2, attackRange: 5, attackValue: 40, position: null, isPenetratingAttack: false },
   //  { id: '4', player: 1, type: 'Crossbow Ranger', maxHP: 150, hp: 150, movementRange: 3, attackRange: 4, attackValue: 20, position: null, isPenetratingAttack: false },
   { id: '5', player: 1, type: 'Artillery', maxHP: 50, hp: 50, movementRange: 1, attackRange: 6, attackValue: 50, position: null, isPenetratingAttack: true, imagePath: '/images/ballista.png', cost: 150, isPaid: false },
-  { id: '6', player: 1, type: 'Mage', maxHP: 50, hp: 50, movementRange: 1, attackRange: 3, attackValue: 50, position: null, isPenetratingAttack: true, imagePath: '/images/mage.png', cost: 150, isPaid: false },
+  { id: '6', player: 1, type: 'Mage', maxHP: 50, hp: 50, movementRange: 1, attackRange: 3, attackValue: 25, position: null, isPenetratingAttack: true, imagePath: '/images/mage.png', cost: 150, isPaid: false },
   
   { id: '7', player: 2, type: 'Soldier', maxHP: 50, hp: 50, movementRange: 2, attackRange: 1, attackValue: 20, position: null, isPenetratingAttack: false, imagePath: '/images/soldier.png', cost: 50, isPaid: false },
   // { id: '8', player: 2, type: 'Archer', maxHP: 80, hp: 80, movementRange: 3, attackRange: 4, attackValue: 10, position: null, isPenetratingAttack: false },
   // { id: '9', player: 2, type: 'Knight', maxHP: 200, hp: 200, movementRange: 2, attackRange: 5, attackValue: 40, position: null, isPenetratingAttack: false },
   // { id: '10', player: 2, type: 'Crossbow Ranger', maxHP: 150, hp: 150, movementRange: 3, attackRange: 4, attackValue: 20, position: null, isPenetratingAttack: false },
   { id: '11', player: 2, type: 'Artillery', maxHP: 50, hp: 50, movementRange: 1, attackRange: 6, attackValue: 50, position: null, isPenetratingAttack: true, imagePath: '/images/ballista.png', cost: 50, isPaid: false },
-  { id: '11', player: 2, type: 'Mage', maxHP: 50, hp: 50, movementRange: 1, attackRange: 3, attackValue: 50, position: null, isPenetratingAttack: true, imagePath: '/images/mage.png', cost: 50, isPaid: false }
+  { id: '11', player: 2, type: 'Mage', maxHP: 50, hp: 50, movementRange: 1, attackRange: 3, attackValue: 15, position: null, isPenetratingAttack: true, imagePath: '/images/mage.png', cost: 50, isPaid: false }
 ];
 
 const initialBuildings: BuildingType[] = [
@@ -141,7 +142,7 @@ const App: React.FC = () => {
     if (unit) {
       event.dataTransfer.setData('unit', JSON.stringify(unit));
       setDraggingUnit(unit);
-      const possibleMoves = calculatePossibleMoves(unit.position!, unit.movementRange, board, terrainBoard);
+      const possibleMoves = calculatePossibleMoves(unit.position!, unit.movementRange, board, terrainBoard, buildingBoard);
       setHighlightedSquares(possibleMoves);
 
       // Skapa en drag-image och applicera rätt klass
@@ -250,16 +251,18 @@ const App: React.FC = () => {
 
   const handleMouseOver = (unit: UnitType) => {
     if (unit.position !== null && !draggingUnit && !selectedUnit) {
-      const possibleMoves = calculatePossibleMoves(unit.position, unit.movementRange, board, terrainBoard);
+      const possibleMoves = calculatePossibleMoves(unit.position, unit.movementRange, board, terrainBoard, buildingBoard);
       let possibleAttackTargets: number[];
   
       if (unit.attackRange === 1) {
         possibleAttackTargets = calculatePossibleMeleeAttackTargets(unit.position, board);
+      }  else if (unit.type === 'Artillery') {
+        possibleAttackTargets = calculatePossiblePenetratingHorizontalVerticalDistanceAttackTargets(unit.position, unit.attackRange, board);
       } else if (unit.isPenetratingAttack || unit.type === 'Mage') {
         const isHealing = unit.type === 'Mage';
         possibleAttackTargets = calculatePossiblePenetratingDistanceAttackTargets(unit.position, unit.attackRange, board, isHealing);
       } else {
-        possibleAttackTargets = calculatePossibleNonPenetratingDistanceAttackTargets(unit.position, unit.attackRange, board, terrainBoard);
+        possibleAttackTargets = calculatePossibleNonPenetratingDistanceAttackTargets(unit.position, unit.attackRange, board, terrainBoard, buildingBoard);
       }
   
       setHighlightedSquares(possibleMoves);
