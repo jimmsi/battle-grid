@@ -1,8 +1,10 @@
 import React from 'react';
-import { Unit } from '../types';
+import { Unit as UnitType, Terrain, Building } from '../types';
 
 interface SquareProps {
-  value: Unit | null;
+  unit: UnitType | null;
+  terrain: Terrain | null;
+  building: Building | null;
   onClick: () => void;
   onDrop: (event: React.DragEvent<HTMLDivElement>) => void;
   onDragOver: (event: React.DragEvent<HTMLDivElement>) => void;
@@ -11,10 +13,13 @@ interface SquareProps {
   onDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
   highlighted: boolean;
   isAttackTarget: boolean;
+  onUnitClick: () => void;
 }
 
 const Square: React.FC<SquareProps> = ({
-  value,
+  unit,
+  terrain,
+  building,
   onClick,
   onDrop,
   onDragOver,
@@ -22,26 +27,29 @@ const Square: React.FC<SquareProps> = ({
   onMouseOut,
   onDragStart,
   highlighted,
-  isAttackTarget
+  isAttackTarget,
+  onUnitClick
 }) => {
   return (
     <div
       className={`square ${highlighted ? 'highlighted' : ''} ${isAttackTarget ? 'attack-target' : ''}`}
-      onClick={onClick}
+      onClick={unit ? onUnitClick : onClick}
       onDrop={onDrop}
       onDragOver={onDragOver}
       onMouseOver={onMouseOver}
       onMouseOut={onMouseOut}
-      draggable={!!value}
-      onDragStart={value ? onDragStart : undefined}
+      draggable={!!unit}
+      onDragStart={unit ? onDragStart : undefined}
     >
-     {value && (
+      {terrain && <img src={terrain.imagePath} alt={terrain.type} className="terrain-image" />}
+      {building && <img src={building.imagePath} alt={building.type} className="building-image" />}
+      {unit && (
         <>
-          <img src={value.imagePath} alt={value.type} className="unit-image" />
+          <img src={unit.imagePath} alt={unit.type} className="unit-image" />
           <div className="health-bar">
             <div
               className="health-bar-inner"
-              style={{ width: `${(value.hp / value.maxHP) * 100}%` }}
+              style={{ width: `${(unit.hp / unit.maxHP) * 85}%`, margin: '1px' }}
             ></div>
           </div>
         </>

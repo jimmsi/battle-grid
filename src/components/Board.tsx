@@ -1,9 +1,11 @@
 import React from 'react';
 import Square from './Square';
-import { Unit } from '../types';
+import { Unit, Terrain, Building } from '../types';
 
 interface BoardProps {
   board: (Unit | null)[];
+  terrainBoard: (Terrain | null)[];
+  buildingBoard: (Building | null)[];
   onSquareClick: (index: number) => void;
   onSquareDrop: (event: React.DragEvent<HTMLDivElement>, index: number) => void;
   onSquareDragOver: (event: React.DragEvent<HTMLDivElement>) => void;
@@ -12,11 +14,13 @@ interface BoardProps {
   onSquareDragStart: (event: React.DragEvent<HTMLDivElement>, index: number) => void;
   highlightedSquares: number[];
   highlightedAttackTargets: number[];
-  handleUnitClick: (unit: Unit) => void;
+  onUnitClick: (unit: Unit) => void;
 }
 
 const Board: React.FC<BoardProps> = ({
   board,
+  terrainBoard,
+  buildingBoard,
   onSquareClick,
   onSquareDrop,
   onSquareDragOver,
@@ -25,21 +29,30 @@ const Board: React.FC<BoardProps> = ({
   onSquareDragStart,
   highlightedSquares,
   highlightedAttackTargets,
-  handleUnitClick
+  onUnitClick
 }) => {
   const renderSquare = (index: number) => {
+    const unit = board[index];
+    const terrainTile = terrainBoard[index];
+    const buildingTile = buildingBoard[index];
+    const isHighlighted = highlightedSquares.includes(index);
+    const isAttackTarget = highlightedAttackTargets.includes(index);
+
     return (
       <Square
         key={index}
-        value={board[index]}
-        onClick={() => board[index] ? handleUnitClick(board[index]!) : onSquareClick(index)}
+        unit={unit}
+        terrain={terrainTile}
+        building={buildingTile}
+        onClick={() => unit ? onUnitClick(unit) : onSquareClick(index)}
         onDrop={(event) => onSquareDrop(event, index)}
         onDragOver={onSquareDragOver}
-        highlighted={highlightedSquares.includes(index)}
-        isAttackTarget={highlightedAttackTargets.includes(index)}
-        onMouseOver={() => board[index] && onMouseOverUnit(board[index]!)}
+        highlighted={isHighlighted}
+        isAttackTarget={isAttackTarget}
+        onMouseOver={() => unit && onMouseOverUnit(unit)}
         onMouseOut={onMouseOutUnit}
         onDragStart={(event) => onSquareDragStart(event, index)}
+        onUnitClick={() => unit && onUnitClick(unit)}
       />
     );
   };
@@ -52,3 +65,4 @@ const Board: React.FC<BoardProps> = ({
 };
 
 export default Board;
+

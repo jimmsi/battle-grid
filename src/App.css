@@ -8,6 +8,7 @@
   display: flex;
   flex-direction: column;
   margin: 20px;
+  object-fit: scale-down;
 }
 
 .unit {
@@ -19,11 +20,39 @@
 }
 
 .unit-image {
-  width: 100%;
-  height: 100%; 
+  width: 55px;
+  height: 55px; 
   padding-bottom: 4px;
-  object-fit: none;
+  object-fit: scale-down;
   display: flex;
+}
+
+.terrain-image {
+  width: 55px;
+  height: 55px;
+  object-fit: scale-down;
+}
+
+.terrain-tile {
+  width: 55px;
+  height: 55px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  object-fit: contain;
+}
+
+.building-image {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.building-tile {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  padding-right: 20px;
+  padding-bottom: 10px;
 }
 
 .health-bar {
@@ -52,26 +81,31 @@
 
 .board {
   display: grid;
-  grid-template-columns: repeat(12, 60px);
-  grid-template-rows: repeat(12, 60px);
+  grid-template-columns: repeat(12, 55px);
+  grid-template-rows: repeat(12, 55px);
   gap: 4px;
 }
 
 .square {
-  width: 60px;
-  height: 60px;
-  background-color: white;
+  width: 55px;
+  height: 55px;
+  background-image: url('/images/grass.png');
+  background-size: cover; /* Ser till att bilden täcker hela rutan */
+  background-repeat: no-repeat; /* Förhindrar upprepning av bilden */
+  background-position: center; /* Placerar bilden centrerad i rutan */
   border: 1px solid black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+  display: flex; /* Lägg till flex-egenskaper för att centrera innehåll */
+  align-items: center; /* Centrerar innehåll vertikalt */
+  justify-content: center; /* Centrerar innehåll horisontellt */
+  position: relative; /* Behåller position för eventuellt absolut positionerat innehåll */
+  z-index: 1;
 }
 
+
 .square.highlighted {
-  background-color: lightblue;
+  background-color: rgb(99, 124, 133);
 }
 
 .square.attack-target {
-  background-color: rgb(255, 129, 129);
+  background-color: rgb(0, 0, 0);
 }

@@ -1,6 +1,6 @@
-import { Unit } from './types';
+import { Unit, Terrain } from './types';
 
-export const calculatePossibleMoves = (position: number, range: number, board: (Unit | null)[]): number[] => {
+export const calculatePossibleMoves = (position: number, range: number, board: (Unit | null)[], terrainBoard: (Terrain | null)[]): number[] => {
   const possibleMoves: Set<number> = new Set();
   const boardSize = 12;
 
@@ -26,7 +26,8 @@ export const calculatePossibleMoves = (position: number, range: number, board: (
           newPosition >= 0 &&
           newPosition < boardSize * boardSize &&
           !possibleMoves.has(newPosition) &&
-          !board[newPosition]
+          !board[newPosition] &&
+          (!terrainBoard[newPosition] || (terrainBoard[newPosition]?.type !== 'Water' && terrainBoard[newPosition]?.type !== 'Rock')) // betrakta vatten som hinder
         ) {
           if (
             (direction === -1 && currentCol > 0) || // left, ensuring not moving left from first column
@@ -66,9 +67,9 @@ export const calculatePossibleMeleeAttackTargets = (position: number, board: (Un
       newPosition >= 0 &&
       newPosition < boardSize * boardSize &&
       (direction === -1 && currentCol > 0 || // left, ensuring not moving left from first column
-      direction === 1 && currentCol < boardSize - 1 || // right, ensuring not moving right from last column
-      direction === -boardSize || // up
-      direction === boardSize) // down
+        direction === 1 && currentCol < boardSize - 1 || // right, ensuring not moving right from last column
+        direction === -boardSize || // up
+        direction === boardSize) // down
     ) {
       const targetUnit = board[newPosition];
       if (targetUnit && targetUnit.player !== board[position]?.player) { // Kontrollera om det är en fiendeenhet
@@ -80,7 +81,12 @@ export const calculatePossibleMeleeAttackTargets = (position: number, board: (Un
   return possibleTargets;
 };
 
-export const calculatePossiblePenetratingDistanceAttackTargets = (position: number, attackRange: number, board: (Unit | null)[]): number[] => {
+export const calculatePossiblePenetratingDistanceAttackTargets = (
+  position: number, 
+  attackRange: number, 
+  board: (Unit | null)[],
+  isHealing: boolean = false // Lägg till parameter för healing
+): number[] => {
   const possibleTargets: number[] = [];
   const boardSize = 12;
 
@@ -103,8 +109,16 @@ export const calculatePossiblePenetratingDistanceAttackTargets = (position: numb
           // Exkludera närmaste grannar (en ruta ifrån i alla riktningar)
           if (!(Math.abs(x) <= 1 && Math.abs(y) <= 1)) {
             const targetUnit = board[targetPosition];
-            if (targetUnit && targetUnit.player !== board[position]?.player) {
-              possibleTargets.push(targetPosition);
+            if (isHealing) {
+              // Om vi utför healing, inkludera egna enheter
+              if (targetUnit && targetUnit.player === board[position]?.player) {
+                possibleTargets.push(targetPosition);
+              }
+            } else {
+              // Om vi utför en attack, inkludera fiendenheter
+              if (targetUnit && targetUnit.player !== board[position]?.player) {
+                possibleTargets.push(targetPosition);
+              }
             }
           }
         }
@@ -115,7 +129,8 @@ export const calculatePossiblePenetratingDistanceAttackTargets = (position: numb
   return possibleTargets;
 };
 
-export const calculatePossibleNonPenetratingDistanceAttackTargets = (position: number, attackRange: number, board: (Unit | null)[]): number[] => {
+
+export const calculatePossibleNonPenetratingDistanceAttackTargets = (position: number, attackRange: number, board: (Unit | null)[], terrainBoard: (Terrain | null)[]): number[] => {
   const possibleTargets: number[] = [];
   const boardSize = 12;
 
@@ -159,7 +174,7 @@ export const calculatePossibleNonPenetratingDistanceAttackTargets = (position: n
             if (checkX === targetX && checkY === targetY) break; // reached the target
 
             const checkPosition = checkY * boardSize + checkX;
-            if (board[checkPosition]) {
+            if (board[checkPosition] || (terrainBoard[checkPosition] && terrainBoard[checkPosition]?.type === 'Rock')) {
               isBlocked = true;
               break;
             }
@@ -178,6 +193,7 @@ export const calculatePossibleNonPenetratingDistanceAttackTargets = (position: n
 
   return possibleTargets;
 };
+
 
 
 
