@@ -80,6 +80,7 @@ export const calculatePossibleMeleeAttackTargets = (position: number, board: (Un
         direction === boardSize) // down
     ) {
       const targetUnit = board[newPosition];
+      
       if (targetUnit && targetUnit.player !== board[position]?.player) { // Kontrollera om det är en fiendeenhet
         possibleTargets.push(newPosition);
       }

@@ -16,22 +16,22 @@ const initialUnits: UnitType[] = [
   //  { id: '4', player: 1, type: 'Crossbow Ranger', maxHP: 150, hp: 150, movementRange: 3, attackRange: 4, attackValue: 20, position: null, isPenetratingAttack: false },
   { id: '5', player: 1, type: 'Artillery', maxHP: 50, hp: 50, movementRange: 1, attackRange: 6, attackValue: 50, position: null, isPenetratingAttack: true, imagePath: '/images/ballista.png', cost: 150, isPaid: false },
   { id: '6', player: 1, type: 'Mage', maxHP: 50, hp: 50, movementRange: 1, attackRange: 3, attackValue: 25, position: null, isPenetratingAttack: true, imagePath: '/images/mage.png', cost: 150, isPaid: false },
-  
+
   { id: '7', player: 2, type: 'Soldier', maxHP: 50, hp: 50, movementRange: 2, attackRange: 1, attackValue: 20, position: null, isPenetratingAttack: false, imagePath: '/images/soldier.png', cost: 50, isPaid: false },
   // { id: '8', player: 2, type: 'Archer', maxHP: 80, hp: 80, movementRange: 3, attackRange: 4, attackValue: 10, position: null, isPenetratingAttack: false },
   // { id: '9', player: 2, type: 'Knight', maxHP: 200, hp: 200, movementRange: 2, attackRange: 5, attackValue: 40, position: null, isPenetratingAttack: false },
   // { id: '10', player: 2, type: 'Crossbow Ranger', maxHP: 150, hp: 150, movementRange: 3, attackRange: 4, attackValue: 20, position: null, isPenetratingAttack: false },
   { id: '11', player: 2, type: 'Artillery', maxHP: 50, hp: 50, movementRange: 1, attackRange: 6, attackValue: 50, position: null, isPenetratingAttack: true, imagePath: '/images/ballista.png', cost: 50, isPaid: false },
-  { id: '11', player: 2, type: 'Mage', maxHP: 50, hp: 50, movementRange: 1, attackRange: 3, attackValue: 15, position: null, isPenetratingAttack: true, imagePath: '/images/mage.png', cost: 50, isPaid: false }
+  { id: '12', player: 2, type: 'Mage', maxHP: 50, hp: 50, movementRange: 1, attackRange: 3, attackValue: 15, position: null, isPenetratingAttack: true, imagePath: '/images/mage.png', cost: 50, isPaid: false }
 ];
 
 const initialBuildings: BuildingType[] = [
   { id: 'b1', type: 'Fort', player: 1, position: null, imagePath: '/images/fort.png', income: 50, cost: 100 },
   { id: 'b2', type: 'Castle', player: 1, position: null, imagePath: '/images/castle.png', income: 50, cost: 150 },
-  { id: 'b3', type: 'Magetower', player: 1, position: null, imagePath: '/images/magetower.png' , income: 50, cost: 150 },
-  { id: 'b1', type: 'Fort', player: 2, position: null, imagePath: '/images/fort.png' , income: 50, cost: 100 },
-  { id: 'b2', type: 'Castle', player: 2, position: null, imagePath: '/images/castle.png' , income: 50, cost: 150 },
-  { id: 'b3', type: 'Magetower', player: 2, position: null, imagePath: '/images/magetower.png' , income: 50, cost: 150 }
+  { id: 'b3', type: 'Magetower', player: 1, position: null, imagePath: '/images/magetower.png', income: 50, cost: 150 },
+  { id: 'b1', type: 'Fort', player: 2, position: null, imagePath: '/images/fort.png', income: 50, cost: 100 },
+  { id: 'b2', type: 'Castle', player: 2, position: null, imagePath: '/images/castle.png', income: 50, cost: 150 },
+  { id: 'b3', type: 'Magetower', player: 2, position: null, imagePath: '/images/magetower.png', income: 50, cost: 150 }
 ];
 
 
@@ -52,6 +52,7 @@ const App: React.FC = () => {
   const [highlightedAttackTargets, setHighlightedAttackTargets] = useState<number[]>([]);
   const [draggingUnit, setDraggingUnit] = useState<UnitType | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<UnitType | null>(null);
+  const [originalPosition, setOriginalPosition] = useState<number | null>(null);
   const [draggingTerrain, setDraggingTerrain] = useState<TerrainType | null>(null);
   const [draggingBuilding, setDraggingBuilding] = useState<BuildingType | null>(null);
   const [player1Economy, setPlayer1Economy] = useState<number>(500); // Start ekonomi för spelare 1
@@ -62,46 +63,46 @@ const App: React.FC = () => {
     const allowedUnits = new Map<string, Set<number>>();
 
     buildingBoard.forEach(building => {
-        if (building && building.player === unit.player) {
-            const adjacentPositions = calculateAdjacentPositions(building.position!);
-            switch (building.type) {
-                case 'Fort':
-                    if (!allowedUnits.has('Soldier')) allowedUnits.set('Soldier', new Set<number>());
-                    if (!allowedUnits.has('Archer')) allowedUnits.set('Archer', new Set<number>());
-                    adjacentPositions.forEach(pos => {
-                        allowedUnits.get('Soldier')?.add(pos);
-                        allowedUnits.get('Archer')?.add(pos);
-                    });
-                    break;
-                case 'Castle':
-                    if (!allowedUnits.has('Knight')) allowedUnits.set('Knight', new Set<number>());
-                    if (!allowedUnits.has('Crossbow Ranger')) allowedUnits.set('Crossbow Ranger', new Set<number>());
-                    if (!allowedUnits.has('Artillery')) allowedUnits.set('Artillery', new Set<number>());
-                    adjacentPositions.forEach(pos => {
-                        allowedUnits.get('Knight')?.add(pos);
-                        allowedUnits.get('Crossbow Ranger')?.add(pos);
-                        allowedUnits.get('Artillery')?.add(pos);
-                    });
-                    break;
-                case 'Magetower':
-                    if (!allowedUnits.has('Mage')) allowedUnits.set('Mage', new Set<number>());
-                    adjacentPositions.forEach(pos => {
-                        allowedUnits.get('Mage')?.add(pos);
-                    });
-                    break;
-            }
+      if (building && building.player === unit.player) {
+        const adjacentPositions = calculateAdjacentPositions(building.position!);
+        switch (building.type) {
+          case 'Fort':
+            if (!allowedUnits.has('Soldier')) allowedUnits.set('Soldier', new Set<number>());
+            if (!allowedUnits.has('Archer')) allowedUnits.set('Archer', new Set<number>());
+            adjacentPositions.forEach(pos => {
+              allowedUnits.get('Soldier')?.add(pos);
+              allowedUnits.get('Archer')?.add(pos);
+            });
+            break;
+          case 'Castle':
+            if (!allowedUnits.has('Knight')) allowedUnits.set('Knight', new Set<number>());
+            if (!allowedUnits.has('Crossbow Ranger')) allowedUnits.set('Crossbow Ranger', new Set<number>());
+            if (!allowedUnits.has('Artillery')) allowedUnits.set('Artillery', new Set<number>());
+            adjacentPositions.forEach(pos => {
+              allowedUnits.get('Knight')?.add(pos);
+              allowedUnits.get('Crossbow Ranger')?.add(pos);
+              allowedUnits.get('Artillery')?.add(pos);
+            });
+            break;
+          case 'Magetower':
+            if (!allowedUnits.has('Mage')) allowedUnits.set('Mage', new Set<number>());
+            adjacentPositions.forEach(pos => {
+              allowedUnits.get('Mage')?.add(pos);
+            });
+            break;
         }
+      }
     });
 
     if (allowedUnits.has(unit.type)) {
-        const newUnit = { ...unit, id: `${unit.id}-${new Date().getTime()}`, position: null };
-        event.dataTransfer.setData('unit', JSON.stringify(newUnit));
-        event.dataTransfer.setData('allowedPositions', JSON.stringify(Array.from(allowedUnits.get(unit.type)!)));
-        setDraggingUnit(newUnit);
+      const newUnit = { ...unit, id: `${unit.id}-${new Date().getTime()}`, position: null };
+      event.dataTransfer.setData('unit', JSON.stringify(newUnit));
+      event.dataTransfer.setData('allowedPositions', JSON.stringify(Array.from(allowedUnits.get(unit.type)!)));
+      setDraggingUnit(newUnit);
     } else {
-        console.log(`Cannot place unit of type ${unit.type} without the appropriate building.`);
+      console.log(`Cannot place unit of type ${unit.type} without the appropriate building.`);
     }
-};
+  };
 
   const calculateAdjacentPositions = (position: number): number[] => {
     const boardSize = 12;
@@ -142,6 +143,10 @@ const App: React.FC = () => {
     if (unit) {
       event.dataTransfer.setData('unit', JSON.stringify(unit));
       setDraggingUnit(unit);
+
+      // Spara den ursprungliga positionen
+      setOriginalPosition(index);
+
       const possibleMoves = calculatePossibleMoves(unit.position!, unit.movementRange, board, terrainBoard, buildingBoard);
       setHighlightedSquares(possibleMoves);
 
@@ -157,26 +162,37 @@ const App: React.FC = () => {
     }
   };
 
+
+
   const handleDrop = (event: React.DragEvent<HTMLDivElement>, index: number) => {
     event.preventDefault();
     const unitData = event.dataTransfer.getData('unit');
     const terrainData = event.dataTransfer.getData('terrain');
     const buildingData = event.dataTransfer.getData('building');
-  
+
     if (unitData) {
       const unit: UnitType = JSON.parse(unitData);
       const allowedPositions: number[] = JSON.parse(event.dataTransfer.getData('allowedPositions') || '[]');
-  
+
       // Kontrollera om enheten placeras första gången
       const isFirstPlacement = unit.position === null;
-  
+
       if ((highlightedSquares.includes(index) || isFirstPlacement) && (unit.position !== null || allowedPositions.includes(index))) {
         const playerEconomy = unit.player === 1 ? player1Economy : player2Economy;
         const unitCost = isFirstPlacement ? unit.cost : 0;
         // Kostnad endast första gången enheten placeras
-  
+
         if (buildingBoard[index] || board[index] || terrainBoard[index]) {
           console.log(`Cannot place unit on a tile with another unit, building or terrain.`);
+
+          // Kontrollera att originalPosition inte är null innan du återställer enheten
+          if (originalPosition !== null) {
+            const updatedBoard = board.slice();
+            updatedBoard[originalPosition] = unit;
+            setBoard(updatedBoard);
+          } else {
+            console.log(`Original position is null, cannot restore unit to original position.`);
+          }
           return;
         }
 
@@ -184,15 +200,15 @@ const App: React.FC = () => {
           const updatedUnit = { ...unit, position: index, isPaid: true }; // Sätt isPaid till true när enheten placeras första gången
           const updatedUnits = units.map(u => u.id === unit.id ? updatedUnit : u);
           const updatedBoard = board.slice();
-          if (unit.position !== null) {
-            updatedBoard[unit.position] = null; // Clear the old position if the unit was already on the board
-          }
+          if (originalPosition !== null) {
+            updatedBoard[originalPosition] = null; // Ta bort från ursprunglig position
+          }// Ta bort från ursprunglig position
           updatedBoard[index] = updatedUnit;
           setUnits(updatedUnits);
           setBoard(updatedBoard);
           setHighlightedSquares([]);
           setDraggingUnit(null);
-  
+
           if (isFirstPlacement) {
             if (unit.player === 1) {
               setPlayer1Economy(player1Economy - unit.cost);
@@ -202,6 +218,19 @@ const App: React.FC = () => {
           }
         } else {
           console.log(`Not enough economy to place ${unit.type}.`);
+          // Återställ till ursprunglig position
+          if (originalPosition !== null) {
+            const updatedBoard = board.slice();
+            updatedBoard[originalPosition] = unit;
+            setBoard(updatedBoard);
+          }
+        }
+      } else {
+        // Återställ till ursprunglig position
+        if (originalPosition !== null) {
+          const updatedBoard = board.slice();
+          updatedBoard[originalPosition] = unit;
+          setBoard(updatedBoard);
         }
       }
     } else if (terrainData) {
@@ -225,14 +254,14 @@ const App: React.FC = () => {
         console.log(`Cannot place building on a tile with another unit, building or terrain.`);
         return;
       }
-  
+
       if (playerEconomy >= building.cost) {
         const updatedBuilding = { ...building, position: index };
         const updatedBuildingBoard = buildingBoard.slice();
         updatedBuildingBoard[index] = updatedBuilding;
         setBuildingBoard(updatedBuildingBoard);
         setDraggingBuilding(null);
-  
+
         if (building.player === 1) {
           setPlayer1Economy(player1Economy - building.cost);
         } else {
@@ -243,20 +272,52 @@ const App: React.FC = () => {
       }
     }
   };
-  
-  
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+
+
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>, index: number) => {
     event.preventDefault();
+    if (draggingUnit && draggingUnit.position !== null) {
+      const possibleMoves = calculatePossibleMoves(draggingUnit.position, draggingUnit.movementRange, board, terrainBoard, buildingBoard);
+      if (possibleMoves.includes(index)) {
+        // Temporärt flytta enheten till den nya rutan under dragningen
+        const updatedBoard = board.slice();
+        if (originalPosition !== null) {
+          updatedBoard[originalPosition] = null; // Clear the old position if the unit was already on the board
+        }
+        updatedBoard[index] = draggingUnit; // Sätt enheten på den nya positionen
+
+        let possibleAttackTargets: number[];
+        if (draggingUnit.attackRange === 1) {
+          possibleAttackTargets = calculatePossibleMeleeAttackTargets(index, updatedBoard);
+        } else if (draggingUnit.type === 'Artillery') {
+          possibleAttackTargets = calculatePossiblePenetratingHorizontalVerticalDistanceAttackTargets(index, draggingUnit.attackRange, updatedBoard);
+        } else if (draggingUnit.isPenetratingAttack || draggingUnit.type === 'Mage') {
+          const isHealing = draggingUnit.type === 'Mage';
+          possibleAttackTargets = calculatePossiblePenetratingDistanceAttackTargets(index, draggingUnit.attackRange, updatedBoard, isHealing);
+        } else {
+          possibleAttackTargets = calculatePossibleNonPenetratingDistanceAttackTargets(index, draggingUnit.attackRange, updatedBoard, terrainBoard, buildingBoard);
+        }
+        setHighlightedAttackTargets(possibleAttackTargets);
+      }
+      else {
+        setHighlightedAttackTargets([]);
+      }
+    }
   };
+
+
+
+
 
   const handleMouseOver = (unit: UnitType) => {
     if (unit.position !== null && !draggingUnit && !selectedUnit) {
       const possibleMoves = calculatePossibleMoves(unit.position, unit.movementRange, board, terrainBoard, buildingBoard);
       let possibleAttackTargets: number[];
-  
+
       if (unit.attackRange === 1) {
         possibleAttackTargets = calculatePossibleMeleeAttackTargets(unit.position, board);
-      }  else if (unit.type === 'Artillery') {
+      } else if (unit.type === 'Artillery') {
         possibleAttackTargets = calculatePossiblePenetratingHorizontalVerticalDistanceAttackTargets(unit.position, unit.attackRange, board);
       } else if (unit.isPenetratingAttack || unit.type === 'Mage') {
         const isHealing = unit.type === 'Mage';
@@ -264,12 +325,12 @@ const App: React.FC = () => {
       } else {
         possibleAttackTargets = calculatePossibleNonPenetratingDistanceAttackTargets(unit.position, unit.attackRange, board, terrainBoard, buildingBoard);
       }
-  
+
       setHighlightedSquares(possibleMoves);
       setHighlightedAttackTargets(possibleAttackTargets);
     }
   };
-  
+
 
 
   const handleMouseOut = () => {
@@ -293,7 +354,7 @@ const App: React.FC = () => {
         unit.hp = Math.min(unit.maxHP, unit.hp + selectedUnit.attackValue);
         console.log(`Healing successful! ${selectedUnit.id} healed ${unit.id} for ${selectedUnit.attackValue} HP.`);
         console.log(`${unit.id} has ${unit.hp} HP now.`);
-  
+
         // Återställ tillstånd efter healing
         setSelectedUnit(null);
         setHighlightedSquares([]);
@@ -311,7 +372,7 @@ const App: React.FC = () => {
         } else {
           console.log(`${unit.id} has ${unit.hp} HP remaining.`);
         }
-  
+
         // Återställ tillstånd efter attacken
         setSelectedUnit(null);
         setHighlightedSquares([]);
@@ -327,7 +388,7 @@ const App: React.FC = () => {
       console.log("Invalid target selected. Resetting state.");
     }
   };
-  
+
 
 
   const handleSquareClick = (index: number) => {
@@ -343,14 +404,14 @@ const App: React.FC = () => {
   const generateIncome = (player: number) => {
     const playerBuildings = buildingBoard.filter(building => building?.player === player);
     const income = playerBuildings.reduce((total, building) => total + (building?.income || 0), 0);
-  
+
     if (player === 1) {
       setPlayer1Economy(player1Economy + income);
     } else {
       setPlayer2Economy(player2Economy + income);
     }
   };
-  
+
 
   return (
     <div className="game">
@@ -418,7 +479,7 @@ const App: React.FC = () => {
       </div>
     </div>
   );
-  
+
 }
 
 export default App;

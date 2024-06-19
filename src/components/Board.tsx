@@ -8,7 +8,7 @@ interface BoardProps {
   buildingBoard: (Building | null)[];
   onSquareClick: (index: number) => void;
   onSquareDrop: (event: React.DragEvent<HTMLDivElement>, index: number) => void;
-  onSquareDragOver: (event: React.DragEvent<HTMLDivElement>) => void;
+  onSquareDragOver: (event: React.DragEvent<HTMLDivElement>, index: number) => void;
   onMouseOverUnit: (unit: Unit) => void;
   onMouseOutUnit: () => void;
   onSquareDragStart: (event: React.DragEvent<HTMLDivElement>, index: number) => void;
@@ -46,7 +46,7 @@ const Board: React.FC<BoardProps> = ({
         building={buildingTile}
         onClick={() => unit ? onUnitClick(unit) : onSquareClick(index)}
         onDrop={(event) => onSquareDrop(event, index)}
-        onDragOver={onSquareDragOver}
+        onDragOver={(event) => onSquareDragOver(event, index)}
         highlighted={isHighlighted}
         isAttackTarget={isAttackTarget}
         onMouseOver={() => unit && onMouseOverUnit(unit)}
@@ -65,4 +65,3 @@ const Board: React.FC<BoardProps> = ({
 };
 
 export default Board;
-
